@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: page_head('Brands - Shopme Admin', 'none')" />
+<body>
+	<div class="container-fluid">
+		<div th:replace="navigation :: menu"></div>
+		<div>
+			<h2>Manage Brands</h2>
+
+			<a th:href="@{/brands/new}"
+				class="fas fa-folder-plus fa-2x icon-dark mr-2">
+			</a> 
+			
+			<a th:href="@{/brands/export/csv}" class="fas fa-file-csv fa-2x icon-dark mr-2"></a>
+			
+		</div>
+		
+		<div th:if="${message != null}"	class="alert alert-success text-center">[[${message}]]</div>
+
+		<div class="full-details">
+			<table
+				class="table table-bordered table-striped table-hover table-responsive-xl">
+				<thead class="thead-dark">
+					<tr>
+						<th>ID</th>
+						<th>Logo</th>
+						<th>
+							<a th:href="@{'/brands/page/'+${currentPage}+'?sortField=name&sortDir=' + ${reverseSortDir}}">Brand Name
+							</a>
+							<span th:class="${reverseSortDir ==  'desc' ? 'fas fa-sort-up' : 'fas fa-sort-down' }">
+							</span>
+						</th>
+						<th>Categories</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="brand : ${listBrands}">
+						<td>[[${brand.id}]]</td>
+						<td><span th:if="${brand.logo == null}"
+							class="fas fa-portrait fa-3x i	con-silver"></span> <img
+							th:if="${brand.logo != null}" th:src="@{${brand.logoPath}}"
+							style="width: 100px" />
+						</td>						
+						<td>[[${brand.name}]]</td>
+						<td>
+							<th:block th:each="cat : ${brand.categories}">
+								<span class="badge badge-secondary" th:text="${cat.name}"></span>
+							</th:block>
+						</td>
+						
+						<td>
+							<a class="fas fa-edit fa-2x icon-green"
+									th:href="@{'/brands/edit/' + ${brand.id}}" title="Edit this Brand">
+							</a>
+									&nbsp; 
+							<a class="fas fa-trash fa-2x icon-dark link-delete"
+									th:href="@{'/brands/delete/' + ${brand.id}}" th:entityId="${brand.id}"
+									title="Delete this Brand">
+							</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="text-center m-1" th:if="${totalItems > 0}">
+			<span>Showing brands # [[${startCount}]] to [[${endCount}]] of
+				[[${totalItems}]]</span>
+		</div>
+		
+		<div class="text-center m-1" th:unless="${totalItems > 0}">
+			<span>No brands found</span>
+		</div>
+		
+		<div th:if="${totalItems > 0}">
+			<nav>
+				<ul class="pagination justify-content-center">
+					<li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+						<a class="page-link" th:href="@{'/brands/page/1' + '?sortDir=' + ${sortDir}}">
+						   First
+						</a>
+					</li>
+
+					<li th:class="${currentPage > 1 ? 'page-item' : 'page-item disabled'}">
+						<a class="page-link" th:href="@{'/brands/page/' + ${currentPage-1} + '?sortDir=' + ${sortDir}}">
+						  Previous
+						</a>	
+					</li>
+		
+					<li th:class="${currentPage != i ? 'page-item': 'page-item active'}" th:each="i : ${#numbers.sequence(1, totalPages)}">
+						<a class="page-link" th:href="@{'/brands/page/' + ${i} + '?sortDir=' + ${sortDir}}">
+						  [[${i}]]
+						</a>	
+					</li>
+
+					<li th:class="${currentPage <  totalPages ? 'page-item' : 'page-item disabled'}">
+						<a class="page-link" th:href="@{'/brands/page/' + ${currentPage+1} + '?sortDir=' + ${sortDir}}">
+							Next
+						</a>
+					<li th:class="${currentPage <  totalPages ? 'page-item' : 'page-item disabled'}">
+						<a class="page-link" th:href="@{'/brands/page/' + ${totalPages} + '?sortDir=' + ${sortDir}}">
+						  Last
+						</a>	
+					</li>
+
+				</ul>
+			</nav>
+		</div>
+		
+		
+		<div id="confirmModal" class="modal fade text-center">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 id="modalTitle">Delete Confirmation</h4>
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+					</div>
+
+					<div class="modal-body">
+						<span id="confirmText"></span>
+					</div>
+
+					<div class="modal-footer">
+						<a id="yesButton" class="btn btn-success" href="">Yes</a>
+						<button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		<div th:replace="fragments :: footer"></div>
+
+	</div>
+
+<script th:src="@{/js/common_list.js}"></script>
+<script type="text/javascript">
+	moduleURL = "[[@{/brands}]]";
+
+	$(document).ready(function() {
+		$(".link-delete").on("click", function(e) {
+			e.preventDefault();
+			showDeleteConfirmModal($(this), 'brand');
+		});
+	});
+</script>
+</body>
+</html>
